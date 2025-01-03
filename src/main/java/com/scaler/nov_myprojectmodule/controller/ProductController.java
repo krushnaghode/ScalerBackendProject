@@ -1,5 +1,7 @@
 package com.scaler.nov_myprojectmodule.controller;
 
+import com.scaler.nov_myprojectmodule.dto.ErrorDto;
+import com.scaler.nov_myprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.nov_myprojectmodule.models.Product;
 import com.scaler.nov_myprojectmodule.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +50,7 @@ public class ProductController {
     }
     // this will help to getting the product details
     @GetMapping("/products/{id}")
-    public Product getProductById(@PathVariable("id") Long id) {
+    public Product getProductById(@PathVariable("id") Long id) throws ProductNotFoundException {
         System.out.println("Starting the api here");
         Product p= productService.getProductById(id);
         System.out.println("Ending the api here");
@@ -78,12 +80,18 @@ public class ProductController {
     }
     // this will help to getting the product details
     @DeleteMapping("/deleteproduct/{id}")
-    public Product deleteProduct(@PathVariable("id") Long id) {
+    public Product deleteProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
         System.out.println("Deleting product with ID: " + id);
         Product p = productService.getProductById(id);
         // Get the product before deleting as the FKSPS has a void return type and we need to return the instance of the product
         productService.deleteProduct(id);
         System.out.println("Product deleted successfully with ID:" + id);
         return p;
+    }
+@ExceptionHandler(ProductNotFoundException.class)
+    public ErrorDto handleProductNotFoundException(Exception e) {
+        ErrorDto errorDto = new ErrorDto();
+        errorDto.setMessage(e.getMessage());
+        return errorDto;
     }
 }
